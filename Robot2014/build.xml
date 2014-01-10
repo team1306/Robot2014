@@ -26,6 +26,17 @@
     <property name="user.properties.file" value="build.properties"/>
     <property file="${user.home}/.sunspotfrc.properties"/>
     <import file="${sunspot.home}/build.xml"/>
+    <exec executable="cp">
+        <arg value="-R" />
+        <arg value="/home/james/NetBeansProjects/BadgerbotsLib/src/org" />
+        <arg value="src/" />
+    </exec>
+    <target name="-post-compile">
+        <exec executable="rm">
+            <arg value="-rf" />
+            <arg value="./src/org" />
+        </exec>
+    </target>
 
     <!--
 
