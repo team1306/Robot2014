@@ -8,7 +8,11 @@
 package edu.wpi.first.wpilibj.templates;
 
 
+import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SimpleRobot;
+import org.badgerbots.lib.TankDrive;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -18,6 +22,19 @@ import edu.wpi.first.wpilibj.SimpleRobot;
  * directory.
  */
 public class Robot extends SimpleRobot {
+    Jaguar leftMotor;
+    Jaguar rightMotor;
+    Joystick leftJoy;
+    Joystick rightJoy;
+    TankDrive drive;
+    
+    public Robot() {
+        leftMotor = new Jaguar(1);
+        rightMotor = new Jaguar(2);
+        leftJoy = new Joystick(1);
+        rightJoy = new Joystick(2);
+        drive = new TankDrive(leftMotor, rightMotor, leftJoy, rightJoy);
+    }
     /**
      * This function is called once each time the robot enters autonomous mode.
      */
@@ -29,7 +46,9 @@ public class Robot extends SimpleRobot {
      * This function is called once each time the robot enters operator control.
      */
     public void operatorControl() {
-
+        while(isOperatorControl()) {
+            drive.drive();
+        }
     }
     
     /**
