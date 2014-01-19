@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SimpleRobot;
 import org.badgerbots.lib.TankDrive;
+import org.badgerbots.lib.TankDriveJoy;
 
 
 /**
@@ -22,18 +23,19 @@ import org.badgerbots.lib.TankDrive;
  * directory.
  */
 public class Robot extends SimpleRobot {
-    Jaguar leftMotor;
-    Jaguar rightMotor;
-    Joystick leftJoy;
-    Joystick rightJoy;
-    TankDrive drive;
+    private final Jaguar leftMotor;
+    private final Jaguar rightMotor;
+    private final Joystick leftJoy;
+    private final Joystick rightJoy;
+    private final TankDrive drive;
     
     public Robot() {
         leftMotor = new Jaguar(1);
         rightMotor = new Jaguar(2);
         leftJoy = new Joystick(1);
         rightJoy = new Joystick(2);
-        drive = new TankDrive(leftMotor, rightMotor, leftJoy, rightJoy);
+        
+        drive = new TankDriveJoy(leftMotor, rightMotor, 2, false, 0.1, 1.0, 0.2, leftJoy, rightJoy);
     }
     /**
      * This function is called once each time the robot enters autonomous mode.
