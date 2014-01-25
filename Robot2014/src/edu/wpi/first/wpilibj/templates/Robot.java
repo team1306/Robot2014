@@ -9,9 +9,9 @@ package edu.wpi.first.wpilibj.templates;
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SimpleRobot;
-import org.badgerbots.lib.TankDrive;
-import org.badgerbots.lib.TankDriveXbox;
 import org.badgerbots.lib.XBoxController;
+import org.badgerbots.lib.drive.Drive;
+import org.badgerbots.lib.drive.TankDriveJoy;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -27,18 +27,20 @@ public class Robot extends SimpleRobot {
     private final Joystick leftJoy;
     private final Joystick rightJoy;
     private final XBoxController xbox;
-    private final TankDrive drive;
+    private final Drive drive;
 
     public Robot() {
         leftMotor = new Jaguar(1);
         rightMotor = new Jaguar(2);
-        
+
         leftJoy = new Joystick(1);
         rightJoy = new Joystick(2);
-        
+
         xbox = new XBoxController(3);
-        
-        drive = new TankDriveXbox(leftMotor, rightMotor, 2.0, false, 0.1, 1.0, 0.2, xbox);
+
+        drive = new TankDriveJoy(leftMotor, rightMotor, 2.0, 0.1, 1.0, 0.2, leftJoy, rightJoy);
+
+        revButtonPressed = false;
     }
 
     /**
@@ -53,9 +55,16 @@ public class Robot extends SimpleRobot {
      */
     public void operatorControl() {
         while (isOperatorControl()) {
+            if (!revButtonPressed && xbox.getButtonY()) {
+                drive.reverse();
+                System.out.println("Robot now reversed");
+            }
+            revButtonPressed = xbox.getButtonY();
             drive.drive();
         }
     }
+    private boolean revButtonPressed;
+    private boolean arcadeModeTogglePressed;
 
     /**
      * This function is called once each time the robot enters test mode.
@@ -64,4 +73,3 @@ public class Robot extends SimpleRobot {
 
     }
 }
-//test from finn
