@@ -1,11 +1,7 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) FIRST 2008. All Rights Reserved.                             */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
 package edu.wpi.first.wpilibj.templates;
 
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SimpleRobot;
@@ -28,6 +24,9 @@ public class Robot extends SimpleRobot {
     private final Joystick rightJoy;
     private final XBoxController xbox;
     private final Drive drive;
+    
+    private final DoubleSolenoid launcherA;
+    private final DoubleSolenoid launcherB;
 
     public Robot() {
         leftMotor = new Jaguar(1);
@@ -41,6 +40,9 @@ public class Robot extends SimpleRobot {
         drive = new TankDriveJoy(leftMotor, rightMotor, 2.0, 0.1, 1.0, 0.2, leftJoy, rightJoy);
 
         revButtonPressed = false;
+        
+        launcherA = new DoubleSolenoid(2, 1);
+        launcherB = new DoubleSolenoid(4, 3);
     }
 
     /**
@@ -55,16 +57,23 @@ public class Robot extends SimpleRobot {
      */
     public void operatorControl() {
         while (isOperatorControl()) {
-            if (!revButtonPressed && xbox.getButtonY()) {
+            if (!revButtonPressed && leftJoy.getRawButton(2) && rightJoy.getRawButton(2) ) {
                 drive.reverse();
                 System.out.println("Robot now reversed");
             }
-            revButtonPressed = xbox.getButtonY();
+            revButtonPressed = leftJoy.getRawButton(2) && rightJoy.getRawButton(2);
             drive.drive();
+            
+            if (xbox.getButtonY()) {
+                launcherA.set(DoubleSolenoid.Value.kForward);
+                launcherB.set(DoubleSolenoid.Value.kForward);
+            } else if (xbox.getButtonA()) {
+                launcherA.set(DoubleSolenoid.Value.kReverse);
+                launcherB.set(DoubleSolenoid.Value.kReverse);
+            }
         }
     }
     private boolean revButtonPressed;
-    private boolean arcadeModeTogglePressed;
 
     /**
      * This function is called once each time the robot enters test mode.
