@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SimpleRobot;
+import edu.wpi.first.wpilibj.Timer;
 import org.badgerbots.lib.XBoxController;
 import org.badgerbots.lib.drive.Drive;
 import org.badgerbots.lib.drive.TankDriveJoy;
@@ -27,6 +28,7 @@ public class Robot extends SimpleRobot {
     
     private final DoubleSolenoid launcherA;
     private final DoubleSolenoid launcherB;
+    
 
     public Robot() {
         leftMotor = new Jaguar(1);
@@ -48,8 +50,24 @@ public class Robot extends SimpleRobot {
     /**
      * This function is called once each time the robot enters autonomous mode.
      */
-    public void autonomous() {
-
+    public void autonomous() 
+    {
+        double initialTime = Timer.getFPGATimestamp();
+        
+        leftMotor.set(.5);
+        rightMotor.set(.5);
+        System.out.println(leftMotor.get());
+        System.out.println(rightMotor.get());
+        
+        if(Timer.getFPGATimestamp() - initialTime == 5)
+        {
+            leftMotor.set(0);
+            rightMotor.set(0);
+            launcherA.set(DoubleSolenoid.Value.kForward);
+            launcherB.set(DoubleSolenoid.Value.kForward);
+            System.out.println(leftMotor.get());
+            System.out.println(rightMotor.get());
+        }
     }
 
     /**
@@ -64,12 +82,12 @@ public class Robot extends SimpleRobot {
             revButtonPressed = leftJoy.getRawButton(2) && rightJoy.getRawButton(2);
             drive.drive();
             
-            if (xbox.getButtonY()) {
-                launcherA.set(DoubleSolenoid.Value.kForward);
-                launcherB.set(DoubleSolenoid.Value.kForward);
-            } else if (xbox.getButtonA()) {
-                launcherA.set(DoubleSolenoid.Value.kReverse);
-                launcherB.set(DoubleSolenoid.Value.kReverse);
+            if (xbox.getButtonY()) { // if you press Y button on xbox controller
+                launcherA.set(DoubleSolenoid.Value.kForward); // extend the solenoids
+                launcherB.set(DoubleSolenoid.Value.kForward); // extend the solenoids
+            } else if (xbox.getButtonA()) { // if you press A button on xbox controller
+                launcherA.set(DoubleSolenoid.Value.kReverse); // retract the solenoids
+                launcherB.set(DoubleSolenoid.Value.kReverse); // retract the solenoids
             }
         }
     }
