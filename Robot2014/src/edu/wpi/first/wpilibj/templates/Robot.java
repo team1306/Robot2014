@@ -44,29 +44,37 @@ public class Robot extends SimpleRobot {
         revButtonPressed = false;
         
         launcherA = new DoubleSolenoid(2, 1);
+        launcherA.set(DoubleSolenoid.Value.kReverse);
         launcherB = new DoubleSolenoid(4, 3);
+        launcherB.set(DoubleSolenoid.Value.kReverse);
     }
 
     /**
      * This function is called once each time the robot enters autonomous mode.
      */
     public void autonomous() 
-    {
-        double initialTime = Timer.getFPGATimestamp();
-        
+    {   
         leftMotor.set(.5);
         rightMotor.set(.5);
-        System.out.println(leftMotor.get());
+        boolean running = true;
+        double newTime = Timer.getFPGATimestamp();
+        double initialTime = Timer.getFPGATimestamp();
+        System.out.println(rightMotor.get());
         System.out.println(rightMotor.get());
         
-        if(Timer.getFPGATimestamp() - initialTime == 5)
+        while(newTime <= 5)
         {
-            leftMotor.set(0);
-            rightMotor.set(0);
-            launcherA.set(DoubleSolenoid.Value.kForward);
-            launcherB.set(DoubleSolenoid.Value.kForward);
+            newTime = Timer.getFPGATimestamp() - initialTime;
+        }
+        
+        if(newTime >= 5)
+        {
+            leftMotor.set(0.0);
+            rightMotor.set(0.0);
             System.out.println(leftMotor.get());
             System.out.println(rightMotor.get());
+            launcherA.set(DoubleSolenoid.Value.kForward);
+            launcherB.set(DoubleSolenoid.Value.kForward);
         }
     }
 
@@ -88,6 +96,18 @@ public class Robot extends SimpleRobot {
             } else if (xbox.getButtonA()) { // if you press A button on xbox controller
                 launcherA.set(DoubleSolenoid.Value.kReverse); // retract the solenoids
                 launcherB.set(DoubleSolenoid.Value.kReverse); // retract the solenoids
+            } else if (xbox.getButtonB()) {
+                double start = Timer.getFPGATimestamp();
+                
+                while(Timer.getFPGATimestamp() - start < 0.25)
+                {
+                    launcherA.set(DoubleSolenoid.Value.kForward);
+                    launcherB.set(DoubleSolenoid.Value.kForward);
+                }
+                
+                launcherA.set(DoubleSolenoid.Value.kReverse);
+                launcherB.set(DoubleSolenoid.Value.kReverse);
+                
             }
         }
     }
