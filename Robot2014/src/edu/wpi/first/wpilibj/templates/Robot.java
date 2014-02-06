@@ -90,16 +90,27 @@ public class Robot extends SimpleRobot {
             revButtonPressed = leftJoy.getRawButton(2) && rightJoy.getRawButton(2);
             drive.drive();
             
+            /**
+             *  Y sets the solenoids fully forward, taking a shot.
+             */
             if (xbox.getButtonY()) { // if you press Y button on xbox controller
                 launcherA.set(DoubleSolenoid.Value.kForward); // extend the solenoids
                 launcherB.set(DoubleSolenoid.Value.kForward); // extend the solenoids
+                
+           /**
+            *  A reverses the solenoids, retracting the launcher.
+            */
             } else if (xbox.getButtonA()) { // if you press A button on xbox controller
                 launcherA.set(DoubleSolenoid.Value.kReverse); // retract the solenoids
                 launcherB.set(DoubleSolenoid.Value.kReverse); // retract the solenoids
+                
+           /** 
+            *  B performs a truss toss. It maintains a heavily vertical arc while not shooting very far horizontally.
+            */
             } else if (xbox.getButtonB()) {
                 double start = Timer.getFPGATimestamp();
                 
-                while(Timer.getFPGATimestamp() - start < 0.25)
+                while(Timer.getFPGATimestamp() - start < 0.2)
                 {
                     launcherA.set(DoubleSolenoid.Value.kForward);
                     launcherB.set(DoubleSolenoid.Value.kForward);
@@ -108,6 +119,29 @@ public class Robot extends SimpleRobot {
                 launcherA.set(DoubleSolenoid.Value.kReverse);
                 launcherB.set(DoubleSolenoid.Value.kReverse);
                 
+            } 
+            
+            /**
+             *  X performs a slower and shorter toss for horizontal passing.
+             */
+            
+            else if (xbox.getButtonX()) 
+            {
+                double start = Timer.getFPGATimestamp();
+                
+                for(double i = 0.025 ; i < 1.0 ; i = i + 0.025)
+                {
+                    while(Timer.getFPGATimestamp() - start < i)
+                    {
+                        launcherA.set(DoubleSolenoid.Value.kForward);
+                        launcherB.set(DoubleSolenoid.Value.kForward);
+                    }
+                    while(Timer.getFPGATimestamp() - start < (i + 0.025))
+                    {
+                        launcherA.set(DoubleSolenoid.Value.kReverse);
+                        launcherB.set(DoubleSolenoid.Value.kReverse);
+                    }
+                }
             }
         }
     }
@@ -116,7 +150,8 @@ public class Robot extends SimpleRobot {
     /**
      * This function is called once each time the robot enters test mode.
      */
-    public void test() {
+    public void test() 
+    {
 
     }
 }
