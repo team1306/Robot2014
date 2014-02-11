@@ -5,8 +5,8 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SimpleRobot;
-import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.badgerbots.lib.PIDMotor;
 import org.badgerbots.lib.XBoxController;
 import org.badgerbots.lib.drive.Drive;
@@ -21,8 +21,8 @@ import org.badgerbots.lib.drive.TankDriveJoy;
  */
 public class Robot extends SimpleRobot {
 
-    private final SpeedController leftMotor;
-    private final SpeedController rightMotor;
+    private final PIDMotor leftMotor;
+    private final PIDMotor rightMotor;
     private final Joystick leftJoy;
     private final Joystick rightJoy;
     private final XBoxController xbox;
@@ -38,25 +38,25 @@ public class Robot extends SimpleRobot {
         xbox = new XBoxController(3);
         leftJoy = new Joystick(1);
         rightJoy = new Joystick(2);
-        
-        leftEnc = new Encoder(3, 4);
+
+        leftEnc = new Encoder(1, 2);
         leftEnc.setDistancePerPulse(0.000104);
         leftEnc.start();
-        rightEnc = new Encoder(1, 2);
+        rightEnc = new Encoder(3, 4);
         rightEnc.setDistancePerPulse(0.000104);
         rightEnc.start();
-        
+
         leftMotor = new PIDMotor(new Jaguar(1), leftEnc, 1.0, 0.0, 0.0);
         rightMotor = new PIDMotor(new Jaguar(2), rightEnc, 1.0, 0.0, 0.0);
-        
+
         drive = new TankDriveJoy(leftMotor, rightMotor, 2.0, 0.1, 1.0, 0.2, leftJoy, rightJoy);
 
         revButtonPressed = false;
 
         launcherA = new DoubleSolenoid(2, 1);
-        launcherA.set(DoubleSolenoid.Value.kOff);
+        launcherA.set(DoubleSolenoid.Value.kReverse);
         launcherB = new DoubleSolenoid(4, 3);
-        launcherB.set(DoubleSolenoid.Value.kOff);
+        launcherB.set(DoubleSolenoid.Value.kReverse);
 
     }
 
@@ -64,6 +64,7 @@ public class Robot extends SimpleRobot {
      * This function is called once each time the robot enters autonomous mode.
      */
     public void autonomous() {
+
         leftMotor.set(0.5);
         rightMotor.set(0.5);
 
@@ -74,7 +75,7 @@ public class Robot extends SimpleRobot {
         launcherA.set(DoubleSolenoid.Value.kForward);
         launcherB.set(DoubleSolenoid.Value.kForward);
         Timer.delay(2.0);
-        
+
         launcherA.set(DoubleSolenoid.Value.kReverse);
         launcherB.set(DoubleSolenoid.Value.kReverse);
     }
@@ -85,10 +86,20 @@ public class Robot extends SimpleRobot {
     public void operatorControl() {
         launcherA.set(DoubleSolenoid.Value.kOff);
         launcherB.set(DoubleSolenoid.Value.kOff);
+        
+        SmartDashboard.putNumber("P Constant", 0.5);
 
         double[] rates = new double[1000];
         int i = 0;
         while (isOperatorControl()) {
+            
+            leftMotor.setP(SmartDashboard.getNumber("P Constant"));
+            rightMotor.setP(SmartDashboard.getNumber("P Constant"));
+            
+            SmartDashboard.putNumber("Left Motor Speed", leftMotor.get());
+            SmartDashboard.putNumber("Right Motor Speed", rightMotor.get());
+            SmartDashboard.putNumber("Left Encoder Rate", leftEnc.getRate());
+            SmartDashboard.putNumber("Right Encoder Rate", rightEnc.getRate());
 
             if (!revButtonPressed && leftJoy.getRawButton(2) && rightJoy.getRawButton(2)) {
                 drive.reverse();
