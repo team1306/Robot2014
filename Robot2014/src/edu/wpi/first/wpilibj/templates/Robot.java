@@ -27,13 +27,15 @@ public class Robot extends SimpleRobot {
     private final Joystick rightJoy;
     private final XBoxController xbox;
     private final Drive drive;
-
+    private final Jaguar pickerUpperWheels;
+    
+    private final DoubleSolenoid pickerUpper;
     private final DoubleSolenoid launcherA;
     private final DoubleSolenoid launcherB;
 
     private final Encoder leftEnc;
     private final Encoder rightEnc;
-
+                    
     public Robot() {
         xbox = new XBoxController(3);
         leftJoy = new Joystick(1);
@@ -57,7 +59,11 @@ public class Robot extends SimpleRobot {
         launcherA.set(DoubleSolenoid.Value.kReverse);
         launcherB = new DoubleSolenoid(4, 3);
         launcherB.set(DoubleSolenoid.Value.kReverse);
-
+        
+        pickerUpper = new DoubleSolenoid(6,5);
+        pickerUpperWheels = new Jaguar(3);
+        
+        
     }
 
     /**
@@ -138,18 +144,6 @@ public class Robot extends SimpleRobot {
              * does this by moving only one of the cylinders.
              */
             else if (xbox.getButtonX()) {
-//                double start = Timer.getFPGATimestamp();
-//
-//                for (double i = 0.025; i < 1.0; i = i + 0.025) {
-//                    while (Timer.getFPGATimestamp() - start < i) {
-//                        launcherA.set(DoubleSolenoid.Value.kForward);
-//                        launcherB.set(DoubleSolenoid.Value.kForward);
-//                    }
-//                    while (Timer.getFPGATimestamp() - start < (i + 0.025)) {
-//                        launcherA.set(DoubleSolenoid.Value.kReverse);
-//                        launcherB.set(DoubleSolenoid.Value.kReverse);
-//                    }
-//                }
                 launcherA.set(DoubleSolenoid.Value.kForward);
 
             } else if (xbox.getButtonStart() && !startButtonPressed) { //One cylinder with a pulse
@@ -158,6 +152,20 @@ public class Robot extends SimpleRobot {
 
                 launcherA.set(DoubleSolenoid.Value.kReverse);
             }
+            
+            else if (xbox.getButtonRB())
+            {
+                pickerUpper.set(DoubleSolenoid.Value.kReverse);
+            }
+            
+            else if (xbox.getButtonLB())
+            {
+                pickerUpper.set(DoubleSolenoid.Value.kForward);
+            }
+            
+            pickerUpperWheels.set(xbox.getRawAxis(3));
+            
+            
             startButtonPressed = xbox.getButtonStart();
             bButtonPressed = xbox.getButtonB();
 
