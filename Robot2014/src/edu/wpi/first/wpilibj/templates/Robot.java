@@ -150,8 +150,6 @@ public class Robot extends SimpleRobot {
                 launcherA.set(DoubleSolenoid.Value.kForward);
                 Timer.delay(0.45);
 
-                //hello
-                
                 launcherA.set(DoubleSolenoid.Value.kReverse);
             }
             
