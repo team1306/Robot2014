@@ -151,10 +151,10 @@ public class Robot extends SimpleRobot {
              * X performs a slower and shorter toss for horizontal passing. It
              * does this by moving only one of the cylinders.
              */
-            else if (xbox.getButtonX()) {
+            else if (xbox.getButtonX() && pickerUpper.get() != DoubleSolenoid.Value.kReverse) {
                 launcherA.set(DoubleSolenoid.Value.kForward);
 
-            } else if (xbox.getButtonStart() && !startButtonPressed) { //One cylinder with a pulse
+            } else if (xbox.getButtonStart() && !startButtonPressed && pickerUpper.get() != DoubleSolenoid.Value.kReverse) { //One cylinder with a pulse
                 launcherA.set(DoubleSolenoid.Value.kForward);
                 Timer.delay(0.45);
 
