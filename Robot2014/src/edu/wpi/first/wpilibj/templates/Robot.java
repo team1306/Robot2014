@@ -1,5 +1,6 @@
 package edu.wpi.first.wpilibj.templates;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Jaguar;
@@ -28,14 +29,15 @@ public class Robot extends SimpleRobot {
     private final XBoxController xbox;
     private final Drive drive;
     private final Jaguar pickerUpperWheels;
-    
+
+    private final Compressor compressor;
     private final DoubleSolenoid pickerUpper;
     private final DoubleSolenoid launcherA;
     private final DoubleSolenoid launcherB;
 
     private final Encoder leftEnc;
     private final Encoder rightEnc;
-                    
+
     public Robot() {
         xbox = new XBoxController(3);
         leftJoy = new Joystick(1);
@@ -55,15 +57,16 @@ public class Robot extends SimpleRobot {
 
         revButtonPressed = false;
 
+        compressor = new Compressor(5, 1);
+        compressor.start();
         launcherA = new DoubleSolenoid(2, 1);
         launcherA.set(DoubleSolenoid.Value.kReverse);
         launcherB = new DoubleSolenoid(4, 3);
         launcherB.set(DoubleSolenoid.Value.kReverse);
-        
-        pickerUpper = new DoubleSolenoid(6,5);
+
+        pickerUpper = new DoubleSolenoid(6, 5);
         pickerUpperWheels = new Jaguar(3);
-        
-        
+
     }
 
     /**
@@ -90,29 +93,33 @@ public class Robot extends SimpleRobot {
      * This function is called once each time the robot enters operator control.
      */
     public void operatorControl() {
-        launcherA.set(DoubleSolenoid.Value.kOff);
-        launcherB.set(DoubleSolenoid.Value.kOff);
-        
-        SmartDashboard.putNumber("P Constant", 0.5);
+        launcherA.set(DoubleSolenoid.Value.kReverse);
+        launcherB.set(DoubleSolenoid.Value.kReverse);
 
-        double[] rates = new double[1000];
-        int i = 0;
-        while (isOperatorControl()) {
-            
+        SmartDashboard.putNumber("P Constant", 1.0);
+
+        for (int i = 0; isOperatorControl(); i++) {
+
             leftMotor.setP(SmartDashboard.getNumber("P Constant"));
             rightMotor.setP(SmartDashboard.getNumber("P Constant"));
-            
+
+            SmartDashboard.putNumber("Left Joystick Position", leftJoy.getY());
+            SmartDashboard.putNumber("Right Joystick Position", rightJoy.getY());
             SmartDashboard.putNumber("Left Motor Speed", leftMotor.get());
             SmartDashboard.putNumber("Right Motor Speed", rightMotor.get());
-            SmartDashboard.putNumber("Left Encoder Rate", leftEnc.getRate());
-            SmartDashboard.putNumber("Right Encoder Rate", rightEnc.getRate());
+            SmartDashboard.putNumber("Left Encoder Rate", leftMotor.getEncoderRate());
+            SmartDashboard.putNumber("Right Encoder Rate", rightMotor.getEncoderRate());
+            SmartDashboard.putNumber("Left Encoder.getRate()", leftEnc.getRate());
+            SmartDashboard.putNumber("Right Encoder.getRate()", rightEnc.getRate());
 
             if (!revButtonPressed && leftJoy.getRawButton(2) && rightJoy.getRawButton(2)) {
                 drive.reverse();
-                System.out.println("Robot now reversed");
+                SmartDashboard.putString("Robot now reversed");
             }
             revButtonPressed = leftJoy.getRawButton(2) && rightJoy.getRawButton(2);
-            drive.drive();
+            if (i % 2 == 0) {
+                drive.drive();
+            }
 
             /**
              * Y sets the solenoids fully forward, taking a shot.
@@ -152,34 +159,28 @@ public class Robot extends SimpleRobot {
 
                 launcherA.set(DoubleSolenoid.Value.kReverse);
             }
-            
-            else if (xbox.getButtonRB())
-            {
+            if (xbox.getButtonRB()) {
                 pickerUpper.set(DoubleSolenoid.Value.kReverse);
-            }
-            
-            else if (xbox.getButtonLB())
-            {
+            } else if (xbox.getButtonLB()) {
                 pickerUpper.set(DoubleSolenoid.Value.kForward);
             }
-            
+
             pickerUpperWheels.set(xbox.getRawAxis(3));
-            
-            
+
             startButtonPressed = xbox.getButtonStart();
             bButtonPressed = xbox.getButtonB();
 
-            if (i >= 1000) {
-                double sum = 0;
-                for (int counter = 0; counter < 1000; counter++) {
-                    sum += rates[counter];
-                }
-                i = 0;
-                System.out.println(sum / 1000);
-            } else {
-                rates[i] = rightEnc.getRate();
-                i++;
-            }
+//            if (i >= 1000) {
+//                double sum = 0;
+//                for (int counter = 0; counter < 1000; counter++) {
+//                    sum += rates[counter];
+//                }
+//                i = 0;
+//                System.out.println(sum / 1000);
+//            } else {
+//                rates[i] = rightEnc.getRate();
+//                i++;
+//            }
         }
     }
     private boolean revButtonPressed;
