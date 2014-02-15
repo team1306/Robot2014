@@ -134,7 +134,7 @@ public class Robot extends SimpleRobot {
             /**
              * Y sets the solenoids fully forward, taking a shot.
              */
-            if (xbox.getButtonY()) { // if you press Y button on xbox controller
+            if (xbox.getButtonY() && pickerUpper.get() != DoubleSolenoid.Value.kReverse) { // if you press Y button on xbox controller and the picker upper is deployed and out of the way
                 launcherA.set(DoubleSolenoid.Value.kForward); // extend the solenoids
                 launcherB.set(DoubleSolenoid.Value.kForward); // extend the solenoids
             } /**
@@ -147,7 +147,7 @@ public class Robot extends SimpleRobot {
              * B performs a truss toss. It maintains a heavily vertical arc
              * while not shooting very far horizontally.
              */
-            else if (xbox.getButtonB() && !bButtonPressed) {
+            else if (xbox.getButtonB() && !bButtonPressed && pickerUpper.get() != DoubleSolenoid.Value.kReverse) {
 
                 launcherA.set(DoubleSolenoid.Value.kForward);
                 launcherB.set(DoubleSolenoid.Value.kForward);
@@ -160,18 +160,19 @@ public class Robot extends SimpleRobot {
              * X performs a slower and shorter toss for horizontal passing. It
              * does this by moving only one of the cylinders.
              */
-            else if (xbox.getButtonX()) {
+            else if (xbox.getButtonX() && pickerUpper.get() != DoubleSolenoid.Value.kReverse) {
                 launcherA.set(DoubleSolenoid.Value.kForward);
 
-            } else if (xbox.getButtonStart() && !startButtonPressed) { //One cylinder with a pulse
+            } else if (xbox.getButtonStart() && !startButtonPressed && pickerUpper.get() != DoubleSolenoid.Value.kReverse) { //One cylinder with a pulse
                 launcherA.set(DoubleSolenoid.Value.kForward);
                 Timer.delay(0.45);
 
                 launcherA.set(DoubleSolenoid.Value.kReverse);
             }
-            if (xbox.getButtonRB()) {
+            // only retract the picker upper if the catapult is retracted and out of the way
+            if (xbox.getButtonRB() && launcherA.get() != DoubleSolenoid.Value.kForward && launcherB.get() != DoubleSolenoid.Value.kForward) {
                 pickerUpper.set(DoubleSolenoid.Value.kReverse);
-            } else {
+            } else if (xbox.getButtonLB()){
                 pickerUpper.set(DoubleSolenoid.Value.kForward);
             }
 
