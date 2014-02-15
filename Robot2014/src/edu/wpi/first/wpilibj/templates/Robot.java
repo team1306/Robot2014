@@ -1,5 +1,6 @@
 package edu.wpi.first.wpilibj.templates;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Jaguar;
@@ -28,6 +29,7 @@ public class Robot extends SimpleRobot {
     private final XBoxController xbox;
     private final Drive drive;
 
+    private final Compressor compressor;
     private final DoubleSolenoid launcherA;
     private final DoubleSolenoid launcherB;
 
@@ -41,18 +43,19 @@ public class Robot extends SimpleRobot {
 
         leftEnc = new Encoder(1, 2);
         leftEnc.setDistancePerPulse(0.000104);
-        leftEnc.start();
         rightEnc = new Encoder(3, 4);
         rightEnc.setDistancePerPulse(0.000104);
-        rightEnc.start();
 
-        leftMotor = new PIDMotor(new Jaguar(1), leftEnc, 1.0, 0.0, 0.0);
-        rightMotor = new PIDMotor(new Jaguar(2), rightEnc, 1.0, 0.0, 0.0);
+        leftMotor = new PIDMotor(new Jaguar(1), leftEnc, 0.5, 0.0, 0.0);
+        rightMotor = new PIDMotor(new Jaguar(2), rightEnc, 0.5, 0.0, 0.0);
 
         drive = new TankDriveJoy(leftMotor, rightMotor, 2.0, 0.1, 1.0, 0.2, leftJoy, rightJoy);
 
         revButtonPressed = false;
-
+        
+        compressor = new Compressor(5, 1);
+        compressor.start();
+        
         launcherA = new DoubleSolenoid(2, 1);
         launcherA.set(DoubleSolenoid.Value.kReverse);
         launcherB = new DoubleSolenoid(4, 3);
@@ -64,7 +67,8 @@ public class Robot extends SimpleRobot {
      * This function is called once each time the robot enters autonomous mode.
      */
     public void autonomous() {
-
+        launcherA.set(DoubleSolenoid.Value.kReverse);
+        launcherB.set(DoubleSolenoid.Value.kReverse);
         leftMotor.set(0.5);
         rightMotor.set(0.5);
 
@@ -84,29 +88,35 @@ public class Robot extends SimpleRobot {
      * This function is called once each time the robot enters operator control.
      */
     public void operatorControl() {
-        launcherA.set(DoubleSolenoid.Value.kOff);
-        launcherB.set(DoubleSolenoid.Value.kOff);
-        
+        launcherA.set(DoubleSolenoid.Value.kReverse);
+        launcherB.set(DoubleSolenoid.Value.kReverse);
+
         SmartDashboard.putNumber("P Constant", 0.5);
 
         double[] rates = new double[1000];
-        int i = 0;
-        while (isOperatorControl()) {
-            
+        for (int i = 0; isOperatorControl(); i++) {
+
             leftMotor.setP(SmartDashboard.getNumber("P Constant"));
             rightMotor.setP(SmartDashboard.getNumber("P Constant"));
-            
+
             SmartDashboard.putNumber("Left Motor Speed", leftMotor.get());
             SmartDashboard.putNumber("Right Motor Speed", rightMotor.get());
-            SmartDashboard.putNumber("Left Encoder Rate", leftEnc.getRate());
-            SmartDashboard.putNumber("Right Encoder Rate", rightEnc.getRate());
+            SmartDashboard.putNumber("Left Encoder Rate", leftMotor.getEncoderRate());
+            SmartDashboard.putNumber("Right Encoder Rate", rightMotor.getEncoderRate());
+            SmartDashboard.putNumber("Left Encoder.getRate()", leftEnc.getRate());
+            SmartDashboard.putNumber("Right Encoder.getRate()", rightEnc.getRate());
 
             if (!revButtonPressed && leftJoy.getRawButton(2) && rightJoy.getRawButton(2)) {
                 drive.reverse();
-                System.out.println("Robot now reversed");
+                SmartDashboard.putString("Most recent action", "Robot reversed");
             }
             revButtonPressed = leftJoy.getRawButton(2) && rightJoy.getRawButton(2);
-            drive.drive();
+            /**
+             * Drives the robot. It is only updated once every 10 iterations.
+             */
+            if (i % 10 == 0) {
+                drive.drive();
+            }
 
             /**
              * Y sets the solenoids fully forward, taking a shot.
@@ -138,18 +148,6 @@ public class Robot extends SimpleRobot {
              * does this by moving only one of the cylinders.
              */
             else if (xbox.getButtonX()) {
-//                double start = Timer.getFPGATimestamp();
-//
-//                for (double i = 0.025; i < 1.0; i = i + 0.025) {
-//                    while (Timer.getFPGATimestamp() - start < i) {
-//                        launcherA.set(DoubleSolenoid.Value.kForward);
-//                        launcherB.set(DoubleSolenoid.Value.kForward);
-//                    }
-//                    while (Timer.getFPGATimestamp() - start < (i + 0.025)) {
-//                        launcherA.set(DoubleSolenoid.Value.kReverse);
-//                        launcherB.set(DoubleSolenoid.Value.kReverse);
-//                    }
-//                }
                 launcherA.set(DoubleSolenoid.Value.kForward);
 
             } else if (xbox.getButtonStart() && !startButtonPressed) { //One cylinder with a pulse
@@ -161,17 +159,17 @@ public class Robot extends SimpleRobot {
             startButtonPressed = xbox.getButtonStart();
             bButtonPressed = xbox.getButtonB();
 
-            if (i >= 1000) {
-                double sum = 0;
-                for (int counter = 0; counter < 1000; counter++) {
-                    sum += rates[counter];
-                }
-                i = 0;
-                System.out.println(sum / 1000);
-            } else {
-                rates[i] = rightEnc.getRate();
-                i++;
-            }
+//            if (i >= 1000) {
+//                double sum = 0;
+//                for (int counter = 0; counter < 1000; counter++) {
+//                    sum += rates[counter];
+//                }
+//                i = 0;
+//                System.out.println(sum / 1000);
+//            } else {
+//                rates[i] = rightEnc.getRate();
+//                i++;
+//            }
         }
     }
     private boolean revButtonPressed;
