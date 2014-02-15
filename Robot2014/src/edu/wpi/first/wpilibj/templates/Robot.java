@@ -117,6 +117,7 @@ public class Robot extends SimpleRobot {
                 SmartDashboard.putString("Robot now reversed");
             }
             revButtonPressed = leftJoy.getRawButton(2) && rightJoy.getRawButton(2);
+            
             if (i % 2 == 0) {
                 drive.drive();
             }
