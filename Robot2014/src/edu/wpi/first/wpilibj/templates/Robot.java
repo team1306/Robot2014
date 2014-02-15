@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.camera.AxisCamera;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.badgerbots.lib.PIDMotor;
 import org.badgerbots.lib.XBoxController;
@@ -37,6 +38,8 @@ public class Robot extends SimpleRobot {
 
     private final Encoder leftEnc;
     private final Encoder rightEnc;
+
+    private final Vision vision = new Vision();
 
     public Robot() {
         xbox = new XBoxController(3);
@@ -83,10 +86,12 @@ public class Robot extends SimpleRobot {
         rightMotor.set(0.0);
         launcherA.set(DoubleSolenoid.Value.kForward);
         launcherB.set(DoubleSolenoid.Value.kForward);
+
         Timer.delay(2.0);
 
         launcherA.set(DoubleSolenoid.Value.kReverse);
         launcherB.set(DoubleSolenoid.Value.kReverse);
+
     }
 
     /**
@@ -103,6 +108,8 @@ public class Robot extends SimpleRobot {
             leftMotor.setP(SmartDashboard.getNumber("P Constant"));
             rightMotor.setP(SmartDashboard.getNumber("P Constant"));
 
+            Vision.ImageData data = vision.getData();
+
             SmartDashboard.putNumber("Left Joystick Position", leftJoy.getY());
             SmartDashboard.putNumber("Right Joystick Position", rightJoy.getY());
             SmartDashboard.putNumber("Left Motor Speed", leftMotor.get());
@@ -111,13 +118,15 @@ public class Robot extends SimpleRobot {
             SmartDashboard.putNumber("Right Encoder Rate", rightMotor.getEncoderRate());
             SmartDashboard.putNumber("Left Encoder.getRate()", leftEnc.getRate());
             SmartDashboard.putNumber("Right Encoder.getRate()", rightEnc.getRate());
+            SmartDashboard.putNumber("distance from target", data.distance());
+            SmartDashboard.putBoolean("hot?", data.hot());
 
             if (!revButtonPressed && leftJoy.getRawButton(2) && rightJoy.getRawButton(2)) {
                 drive.reverse();
-                SmartDashboard.putString("Robot now reversed");
+                SmartDashboard.putString("Most Recent Action", "Robot now reversed");
             }
             revButtonPressed = leftJoy.getRawButton(2) && rightJoy.getRawButton(2);
-            
+
             if (i % 2 == 0) {
                 drive.drive();
             }
@@ -162,7 +171,7 @@ public class Robot extends SimpleRobot {
             }
             if (xbox.getButtonRB()) {
                 pickerUpper.set(DoubleSolenoid.Value.kReverse);
-            } else if (xbox.getButtonLB()) {
+            } else {
                 pickerUpper.set(DoubleSolenoid.Value.kForward);
             }
 
