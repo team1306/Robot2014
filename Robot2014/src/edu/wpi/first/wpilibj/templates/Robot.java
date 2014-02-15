@@ -114,7 +114,7 @@ public class Robot extends SimpleRobot {
 
             if (!revButtonPressed && leftJoy.getRawButton(2) && rightJoy.getRawButton(2)) {
                 drive.reverse();
-                SmartDashboard.putString("Robot now reversed");
+                SmartDashboard.putString("Most recent action", "Robot now reversed");
             }
             revButtonPressed = leftJoy.getRawButton(2) && rightJoy.getRawButton(2);
             
@@ -125,7 +125,7 @@ public class Robot extends SimpleRobot {
             /**
              * Y sets the solenoids fully forward, taking a shot.
              */
-            if (xbox.getButtonY()) { // if you press Y button on xbox controller
+            if (xbox.getButtonY() && pickerUpper.get() != DoubleSolenoid.Value.kReverse) { // if you press Y button on xbox controller and the picker upper is deployed and out of the way
                 launcherA.set(DoubleSolenoid.Value.kForward); // extend the solenoids
                 launcherB.set(DoubleSolenoid.Value.kForward); // extend the solenoids
             } /**
@@ -138,7 +138,7 @@ public class Robot extends SimpleRobot {
              * B performs a truss toss. It maintains a heavily vertical arc
              * while not shooting very far horizontally.
              */
-            else if (xbox.getButtonB() && !bButtonPressed) {
+            else if (xbox.getButtonB() && !bButtonPressed && pickerUpper.get() != DoubleSolenoid.Value.kReverse) {
 
                 launcherA.set(DoubleSolenoid.Value.kForward);
                 launcherB.set(DoubleSolenoid.Value.kForward);
@@ -160,7 +160,8 @@ public class Robot extends SimpleRobot {
 
                 launcherA.set(DoubleSolenoid.Value.kReverse);
             }
-            if (xbox.getButtonRB()) {
+            // only retract the picker upper if the catapult is retracted and out of the way
+            if (xbox.getButtonRB() && launcherA.get() != DoubleSolenoid.Value.kForward && launcherB.get() != DoubleSolenoid.Value.kForward) {
                 pickerUpper.set(DoubleSolenoid.Value.kReverse);
             } else if (xbox.getButtonLB()) {
                 pickerUpper.set(DoubleSolenoid.Value.kForward);
