@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Victor;
@@ -88,10 +89,10 @@ public class Robot extends SimpleRobot {
      * This function is called once each time the robot enters autonomous mode.
      */
     public void autonomous() {
-
-        for (double startTime = Timer.getFPGATimestamp(); Timer.getFPGATimestamp() - startTime < 5.0; Timer.delay(0.05)) {
-            leftMotor.set(-0.5);
-            rightMotor.set(0.5);
+        pickerUpper.set(DoubleSolenoid.Value.kForward);
+        for (double startTime = Timer.getFPGATimestamp(); Timer.getFPGATimestamp() - startTime < 1.5; Timer.delay(0.05)) {
+            leftMotor.set(0.5);
+            rightMotor.set(-0.5);
         }
 
         leftMotor.set(0.0);
